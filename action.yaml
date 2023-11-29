@@ -1,0 +1,30 @@
+name: 'Authorized User Check'
+description: 'Checks if a user is whitelisted or a member of a team.'
+inputs:
+  username:
+    description: 'The username to check'
+    required: true
+  team:
+    description: 'The team name to check'
+    required: true
+  org:
+    description: 'The organization to check'
+    required: true
+  whitelist:
+    description: 'The whitelist of users to allow. Comma separated list.'
+    required: true
+  github_token:
+    description: "The github token to use. Must have at least 'org:read' scope."
+    required: true
+
+outputs:
+  team_member:
+    description: Is the user a member of the team? False if whitelisted as whitelisting takes priority.
+  whitelisted:
+    description: Is the user whitelisted?
+  authorized:
+    description: Is the user part of the whitelist or team?
+
+runs:
+  using: 'node20'
+  main: 'main.js'
