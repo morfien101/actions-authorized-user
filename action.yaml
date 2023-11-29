@@ -1,5 +1,8 @@
 name: 'Authorized User Check'
 description: 'Checks if a user is whitelisted or a member of a team.'
+branding:
+  icon: 'user-check'
+  color: 'green'
 inputs:
   username:
     description: 'The username to check'
