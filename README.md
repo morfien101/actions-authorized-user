@@ -20,22 +20,24 @@ Whitelist membership is checked before team membership. If a user is part of the
 
 ## Inputs
 
-Name | Required | Default | Description
----|---|---|---
-username | Y | N/A | The username to check. Normally `${{ github.actor }}`
-team | Y | N/A | The name of the team that should be allowed
-org | Y | N/A | The organization to test against. Normally `${{ github.repo_owner }}`
-whitelist | N | '' | Comma separated usernames. Intended for Github Apps or exception users.
-github_token | Y | N/A | Github token with at least `org:read` in the permissions.
+| Name         | Required | Default | Description                                                             |
+| ------------ | -------- | ------- | ----------------------------------------------------------------------- |
+| username     | Y        | N/A     | The username to check. Normally `${{ github.actor }}`                   |
+| team         | Y        | N/A     | The name of the team that should be allowed                             |
+| org          | Y        | N/A     | The organization to test against. Normally `${{ github.repo_owner }}`   |
+| whitelist    | N        | ''      | Comma separated usernames. Intended for Github Apps or exception users. |
+| github_token | Y        | N/A     | Github token with at least `org:read` in the permissions.               |
 
 ## Outputs
-Name | Description
----|---
-team_member | The username was found using a team lookup.
-whitelisted | The username was in the supplied whitelist.
-authorized | The username was in either the teams or whitelist lookup.
+
+| Name        | Description                                               |
+| ----------- | --------------------------------------------------------- |
+| team_member | The username was found using a team lookup.               |
+| whitelisted | The username was in the supplied whitelist.               |
+| authorized  | The username was in either the teams or whitelist lookup. |
 
 Example:
+
 ```
 on:
   workflow_dispatch:
@@ -49,7 +51,7 @@ jobs:
         echo "Or use a Github App and generate the token here"
         echo "github_token=gh_abc123" >> ${{ GITHUB_OUTPUTS }}
     - id: auth_check
-      uses: morfien101/actions-authorized-user
+      uses: morfien101/actions-authorized-user@main
       with:
         username: ${{ github.actor }}
         org: ${{ github.repo_owner }}
@@ -61,9 +63,9 @@ jobs:
     # You can either use a if statement on the steps to see if they are allowed to run.
     - name: can use a if statement on jobs
       if: ${{ steps.auth_check.outputs.authorized }}
-      run: | 
+      run: |
         echo "Do cool stuff now as this user can run this workflow."
-    
+
     # Or we can just check with a step like this which will error if the user is not authorized.
     # Everything after this will not be executed.
     - name: can continue
