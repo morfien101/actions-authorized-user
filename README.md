@@ -57,7 +57,7 @@ jobs:
         echo "Or use a Github App and generate the token here"
         echo "github_token=gh_abc123" >> ${{ GITHUB_OUTPUTS }}
     - id: auth_check
-      uses: morfien101/actions-authorized-user@main
+      uses: morfien101/actions-authorized-user@v1
       with:
         username: ${{ github.actor }}
         org: ${{ github.repo_owner }}
