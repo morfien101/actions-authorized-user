@@ -10,13 +10,19 @@ Github Apps can not be part of teams, so they will need to be part of the whitel
 To make it easier to pass the list around, a comma separated list of users is used on the whitelist.
 You can store this with the repo itself.
 
-Beware a user with write permissions could update the whitelist file and grant themselves permissions to execute the job.
+:warning: Beware a user with write permissions could update the whitelist file and grant themselves permissions to execute the job.
 However, you'll at least have a log in the commit history of this.
+
+## Requirements
 
 Like all actions, it will need a github token to make calls to the API.
 The Token passed onto the action needs to have at least the `org:read` permission.
 
-Whitelist membership is checked before team membership. If a user is part of the whitelist, no team membership is checked.
+## Hierarchy of checks
+
+- Whitelist membership is checked before team membership.
+
+- If a user is part of the whitelist, no team membership is checked.
 
 ## Inputs
 
