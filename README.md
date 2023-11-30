@@ -44,7 +44,7 @@ The Token passed onto the action needs to have at least the `org:read` permissio
 
 Example:
 
-```
+```yaml
 on:
   workflow_dispatch:
 
