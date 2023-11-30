@@ -80,3 +80,15 @@ jobs:
       run: |
         echo "Do cool stuff now as this user can run this workflow."
 ```
+
+## Contributing
+
+Any changes to `main.js` has to follow a compilation step with `@vercel/ncc`.
+
+```sh
+ncc build main.js
+
+# OR
+
+node_modules/@vercel/ncc/dist/ncc/cli.js build main.js
+```
