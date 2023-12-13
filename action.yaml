@@ -1,11 +1,11 @@
 name: "Authorized User Check"
-description: "Checks if a user is whitelisted or a member of a team."
+description: "Checks if a user or users is whitelisted or a member of a team."
 branding:
   icon: "user-check"
   color: "green"
 inputs:
   username:
-    description: "The username to check"
+    description: "The username or list of usernames to check"
     required: true
   team:
     description: "The team name to check"
@@ -19,7 +19,14 @@ inputs:
   github_token:
     description: "The github token to use. Must have at least 'org:read' scope."
     required: true
-
+  multi_user:
+    description: "If true will check all users supplied in a list. Output will be a list ordered by the order of the input."
+    required: false
+    default: "false"
+  multi_delimiter:
+    description: "The delimiter to use for the multi_user input."
+    required: false
+    default: ","
 outputs:
   team_member:
     description: Is the user a member of the team? False if whitelisted as whitelisting takes priority.

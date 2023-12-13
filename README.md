@@ -1,10 +1,12 @@
 # actions-authorized-user
 
 Checks to see if a user is a member of a team or supplied whitelist.
+Can also take a list of usernames to check. This allows you to count how many users are authorized.
 
 This is intended to be used on workflows where the scope is limited to a specific set of users or Github apps.
 The rights of the repo may not reflect the permissions required to run all actions.
 For instance, not all maintainers should be allowed to start a production deployment.
+Or of the users in a PR how many of them are in a group?
 
 Github Apps can not be part of teams, so they will need to be part of the whitelist.
 To make it easier to pass the list around, a comma separated list of users is used on the whitelist.
@@ -28,11 +30,13 @@ The Token passed onto the action needs to have at least the `org:read` permissio
 
 | Name         | Required | Default | Description                                                             |
 | ------------ | -------- | ------- | ----------------------------------------------------------------------- |
-| username     | Y        | N/A     | The username to check. Normally `${{ github.actor }}`                   |
+| username     | Y        | N/A     | The username(s) to check. Normally `${{ github.actor }}`                |
 | team         | Y        | N/A     | The name of the team that should be allowed                             |
 | org          | Y        | N/A     | The organization to test against. Normally `${{ github.repo_owner }}`   |
 | whitelist    | N        | ''      | Comma separated usernames. Intended for Github Apps or exception users. |
 | github_token | Y        | N/A     | Github token with at least `org:read` in the permissions.               |
+| multi_mode   | N        | false   | Allows looking up multiple users in a single call.                      |
+| multi_delimiter | N     | ','     | The delimiter of the usernames passed in.
 
 ## Outputs
 
@@ -42,7 +46,10 @@ The Token passed onto the action needs to have at least the `org:read` permissio
 | whitelisted | The username was in the supplied whitelist.               |
 | authorized  | The username was in either the teams or whitelist lookup. |
 
-Example:
+If a single user is checked, you will get back a single value in each output.
+If multiple users are checked, you will get back a list of values. The order is the same as the order of the users passed in.
+
+Example of a single lookup:
 
 ```yaml
 on:
@@ -56,6 +63,7 @@ jobs:
         echo "Get the github token you want to use"
         echo "Or use a Github App and generate the token here"
         echo "github_token=gh_abc123" >> ${{ GITHUB_OUTPUTS }}
+
     - id: auth_check
       uses: morfien101/actions-authorized-user@v1
       with:
@@ -85,6 +93,39 @@ jobs:
     - name: cool stuff
       run: |
         echo "Do cool stuff now as this user can run this workflow."
+```
+
+Example of a multi lookup:
+```yaml
+steps:
+  - id: get_token
+    run: |
+      echo "Get the github token you want to use"
+      echo "Or use a Github App and generate the token here"
+      echo "github_token=gh_abc123" >> ${{ GITHUB_OUTPUTS }}
+
+  - name: Check list of users
+    id: authorized_list
+    uses: morfien101/actions-authorized-user@v1
+      with:
+        username: ${{ github.actor }}
+        org: ${{ github.repo_owner }}
+        team: "release_team"
+        whitelist: "app1_name[bot],app2_name[bot],mona_the_cat"
+        github_token: ${{ steps.get_token.outputs.github_token }}
+  
+  - name: How many passed
+    id: enough_authorized
+    shell: bash
+    runs: |
+      n_allowed=$(echo "${{ steps.authorized_list }}" | tr ',' '\n' | grep true | wc -l)
+      if [ $n_allowed -gt 1 ]; then
+        do_it="true"
+      else
+        do_it="false"
+      fi
+
+      echo "allowed=$do_it" >> ${{ GITHUB_OUTPUTS }}
 ```
 
 ## Contributing
