@@ -65,7 +65,7 @@ jobs:
         echo "github_token=gh_abc123" >> ${{ GITHUB_OUTPUTS }}
 
     - id: auth_check
-      uses: morfien101/actions-authorized-user@v1
+      uses: morfien101/actions-authorized-user@v2
       with:
         username: ${{ github.actor }}
         org: ${{ github.repo_owner }}
@@ -106,7 +106,7 @@ steps:
 
   - name: Check list of users
     id: authorized_list
-    uses: morfien101/actions-authorized-user@v1
+    uses: morfien101/actions-authorized-user@v2
       with:
         username: user1,user2,user3
         org: ${{ github.repo_owner }}
