@@ -35,7 +35,7 @@ The Token passed onto the action needs to have at least the `org:read` permissio
 | org          | Y        | N/A     | The organization to test against. Normally `${{ github.repo_owner }}`   |
 | whitelist    | N        | ''      | Comma separated usernames. Intended for Github Apps or exception users. |
 | github_token | Y        | N/A     | Github token with at least `org:read` in the permissions.               |
-| multi_mode   | N        | false   | Allows looking up multiple users in a single call.                      |
+| multi_user   | N        | false   | Allows looking up multiple users in a single call.                      |
 | multi_delimiter | N     | ','     | The delimiter of the usernames passed in.
 
 ## Outputs
@@ -108,11 +108,12 @@ steps:
     id: authorized_list
     uses: morfien101/actions-authorized-user@v1
       with:
-        username: ${{ github.actor }}
+        username: user1,user2,user3
         org: ${{ github.repo_owner }}
         team: "release_team"
         whitelist: "app1_name[bot],app2_name[bot],mona_the_cat"
         github_token: ${{ steps.get_token.outputs.github_token }}
+        multi_user: true
   
   - name: How many passed
     id: enough_authorized
