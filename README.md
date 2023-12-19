@@ -31,7 +31,7 @@ The Token passed onto the action needs to have at least the `org:read` permissio
 | Name         | Required | Default | Description                                                             |
 | ------------ | -------- | ------- | ----------------------------------------------------------------------- |
 | username     | Y        | N/A     | The username(s) to check. Normally `${{ github.actor }}`                |
-| team         | Y        | N/A     | The name of the team that should be allowed                             |
+| team         | Y        | N/A     | The name of the team that should be allowed. A blank team will skip a team check |
 | org          | Y        | N/A     | The organization to test against. Normally `${{ github.repo_owner }}`   |
 | whitelist    | N        | ''      | Comma separated usernames. Intended for Github Apps or exception users. |
 | github_token | Y        | N/A     | Github token with at least `org:read` in the permissions.               |
@@ -65,7 +65,7 @@ jobs:
         echo "github_token=gh_abc123" >> ${{ GITHUB_OUTPUTS }}
 
     - id: auth_check
-      uses: morfien101/actions-authorized-user@v2
+      uses: morfien101/actions-authorized-user@v3
       with:
         username: ${{ github.actor }}
         org: ${{ github.repo_owner }}
@@ -106,7 +106,7 @@ steps:
 
   - name: Check list of users
     id: authorized_list
-    uses: morfien101/actions-authorized-user@v2
+    uses: morfien101/actions-authorized-user@v3
       with:
         username: user1,user2,user3
         org: ${{ github.repo_owner }}

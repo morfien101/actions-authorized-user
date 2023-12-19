@@ -47,14 +47,15 @@ async function singleCheck(github_token, team_slug, org, username, whitelist) {
             core.setOutput('team_member', false);
         }
     }
-
-    if (!whitelisted){
-        let team_membership = await checkTeamMembership(github_token, username, org, team_slug)
-        if (team_membership) {
-            team_member = true;
-            core.setOutput('team_member', true);
-            core.setOutput('authorized', true);
-            core.setOutput('whitelisted', false);
+    if (team_slug =! '') {
+        if (!whitelisted){
+            let team_membership = await checkTeamMembership(github_token, username, org, team_slug)
+            if (team_membership) {
+                team_member = true;
+                core.setOutput('team_member', true);
+                core.setOutput('authorized', true);
+                core.setOutput('whitelisted', false);
+            }
         }
     }
 
@@ -81,12 +82,14 @@ async function multiCheck(github_token, team_slug, org, username, whitelist, mul
             }
         }
     
-        if (!whitelisted){
-            let team_membership = await checkTeamMembership(github_token, user, org, team_slug)
-            if (team_membership) {
-                team_member = true;
-                authorized = true;
-                whitelisted = false;
+        if (team_slug =! '') {
+            if (!whitelisted){
+                let team_membership = await checkTeamMembership(github_token, user, org, team_slug)
+                if (team_membership) {
+                    team_member = true;
+                    authorized = true;
+                    whitelisted = false;
+                }
             }
         }
         console.log("User " + user + " whitelisted:" + whitelisted + ", team member: " + team_member);

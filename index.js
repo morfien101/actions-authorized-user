@@ -30661,24 +30661,32 @@ const { Octokit } = __nccwpck_require__(5375);
 const core=__nccwpck_require__(2186);
 
 function checkWhitelist(username, whitelist) {
-    console.log("Checking whitelist")
+    console.log("Checking whitelist of " + username)
     return whitelist.split(',').includes(username);
 }
 
 async function checkTeamMembership(github_token, username, org, team_slug) {
-    console.log("Checking team membership")
+    console.log("Checking team membership " + username)
     const octokit = new Octokit({
         auth: github_token,
     });
 
-    const membership = await octokit.rest.teams.getMembershipForUserInOrg({
-        org,
-        team_slug,
-        username,
-    });
-
-    if (membership.state == 'active') {
-        return true;
+    try {
+        const membership = await octokit.rest.teams.getMembershipForUserInOrg({
+            org,
+            team_slug,
+            username,
+        });
+        
+        if (membership.data.state == 'active') {
+            return true;
+        }
+    } catch (error) {
+        if (error.status >= 500) {
+            console.log("There was an error checking a team membership. This is likely a GitHub API error. Status code: " + error.status)
+            console.log(JSON.stringify(error))
+        }
+        return false
     }
 
     return false;
@@ -30698,20 +30706,22 @@ async function singleCheck(github_token, team_slug, org, username, whitelist) {
             core.setOutput('team_member', false);
         }
     }
-
-    if (!whitelisted){
-        if (checkTeamMembership(github_token, username, org, team_slug)) {
-            team_member = true;
-            core.setOutput('team_member', true);
-            core.setOutput('authorized', true);
-            core.setOutput('whitelisted', false);
+    if (team_slug =! '') {
+        if (!whitelisted){
+            let team_membership = await checkTeamMembership(github_token, username, org, team_slug)
+            if (team_membership) {
+                team_member = true;
+                core.setOutput('team_member', true);
+                core.setOutput('authorized', true);
+                core.setOutput('whitelisted', false);
+            }
         }
     }
 
     console.log("User whitelisted:" + whitelisted + ", team member: " + team_member);
 }
 
-function multiCheck(github_token, team_slug, org, username, whitelist, multi_delimiter) {
+async function multiCheck(github_token, team_slug, org, username, whitelist, multi_delimiter) {
     const users = username.split(multi_delimiter);
     let outputs = {
         authorized: [],
@@ -30722,6 +30732,7 @@ function multiCheck(github_token, team_slug, org, username, whitelist, multi_del
         let whitelisted = false;
         let team_member = false;
         let authorized = false;
+
         if ( whitelist != '') {
             if (checkWhitelist(user, whitelist)) {
                 whitelisted = true
@@ -30730,14 +30741,17 @@ function multiCheck(github_token, team_slug, org, username, whitelist, multi_del
             }
         }
     
-        if (!whitelisted){
-            if (checkTeamMembership(github_token, user, org, team_slug)) {
-                team_member = true;
-                authorized = true;
-                whitelisted = false;
+        if (team_slug =! '') {
+            if (!whitelisted){
+                let team_membership = await checkTeamMembership(github_token, user, org, team_slug)
+                if (team_membership) {
+                    team_member = true;
+                    authorized = true;
+                    whitelisted = false;
+                }
             }
         }
-        console.log("User" + + " whitelisted:" + whitelisted + ", team member: " + team_member);
+        console.log("User " + user + " whitelisted:" + whitelisted + ", team member: " + team_member);
         outputs.authorized.push(authorized)
         outputs.team_member.push(team_member)
         outputs.whitelisted.push(whitelisted)
@@ -30758,9 +30772,9 @@ async function run(){
     multi_delimiter = core.getInput('multi_delimiter');
 
     if (multi_user) {
-        console.log("Multi mode enabled")
+        await multiCheck(github_token, team_slug, org, username, whitelist, multi_delimiter);
     } else {
-        singleCheck(github_token, team_slug, org, username, whitelist);
+        await singleCheck(github_token, team_slug, org, username, whitelist);
     }
 }
 
