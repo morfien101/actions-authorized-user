@@ -131,6 +131,9 @@ steps:
 
 ## Contributing
 
+For testing you will need some env vars set. You can find these in the test.sh file.
+For local testing there is a debug logger that you can use. Set the env value `DEBUG=true` to turn it on.
+
 Any changes to `main.js` has to follow a compilation step with `@vercel/ncc`.
 
 ```sh
